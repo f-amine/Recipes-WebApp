@@ -42,6 +42,7 @@ The app was built with the following technologies:
 - Pagination system: divides long lists of recipes and ingredients into smaller pages
 #### Web Scraping
 - Web scraping script: retrieves information about recipes and ingredients from other cooking sites and imports them into the website
+- website scraped : https://www.simplyrecipes.com/microwave-red-curry-poached-salmon-recipe-7111220
 ## Diagrams
 
 The project includes use case and class diagrams that meet the functional requirements of the website.
