@@ -21,6 +21,52 @@
     <link rel="stylesheet" href="{% static 'assets/css/fontawesome.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/templatemo-stand-blog.css' %}">
     <link rel="stylesheet" href="{% static 'assets/css/owl.css' %}">
+    <style>
+      .pagination {
+	margin-top: 20px;
+	text-align: center;
+  }
+  
+  .pagination a {
+	display: inline-block;
+	padding: 8px 16px;
+	text-decoration: none;
+	color: #333;
+	border: 1px solid #ddd;
+  }
+  
+  .pagination a:hover {
+	background-color: #ddd;
+  }
+  
+  .pagination .current-page {
+	display: inline-block;
+	padding: 8px 16px;
+	background-color: #333;
+	color: #fff;
+  }
+  
+  .pagination .page-links {
+	display: inline-block;
+	margin-left: 5px;
+	margin-right: 5px;
+  }
+  
+  .pagination .page-links a:first-child,
+  .pagination .page-links a:last-child {
+	border-radius: 5px;
+  }
+  
+  .pagination .page-links a:first-child {
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+  }
+  
+  .pagination .page-links a:last-child {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+  }
+    </style>
 <!--
 
 TemplateMo 551 Stand Blog
@@ -46,33 +92,34 @@ https://templatemo.com/tm-551-stand-blog
     <header class="">
       <nav class="navbar navbar-expand-lg">
         <div class="container">
-          <a class="navbar-brand" href=""><h2>Recipify<em>.</em></h2></a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarResponsive">
-            <ul class="navbar-nav ml-auto">
-              <li class="nav-item active">
-                <a class="nav-link" href="index.html">Home
-                  <span class="sr-only">(current)</span>
-                </a>
-              </li> 
-              <li class="nav-item">
-                <a class="nav-link" href="about.html">About Us</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="blog.html">Blog Entries</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="post-details.html">Post Details</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="contact.html">Contact Us</a>
-              </li>
-            </ul>
-          </div>
+            <a class="navbar-brand" href=""><h2>Recipify<em>.</em></h2></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="index.html">Home
+                            <span class="sr-only">(current)</span>
+                        </a>
+                    </li> 
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Welcome, {{ user.username }}</a>
+                    </li>
+                    <li class="nav-item">
+                      <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
         </div>
-      </nav>
+    </nav>
+    
     </header>
 
     <!-- Page Content -->
@@ -80,7 +127,7 @@ https://templatemo.com/tm-551-stand-blog
     <div class="main-banner header-text">
       <div class="container-fluid">
         <div class="owl-banner owl-carousel">
-          {% for recipe in data %}
+          {% for recipe in page_obj %}
           <div class="item">
             <img src="{{ recipe.image_url }}" alt="">
             <div class="item-content">
@@ -109,11 +156,11 @@ https://templatemo.com/tm-551-stand-blog
           <div class="col-lg-8">
             <div class="all-blog-posts">
               <div class="row">
-                {% for recipe in data %}
+                {% for recipe in page_obj %}
                 <div class="col-lg-12">
                   <div class="blog-post">
                     <div class="blog-thumb">
-                      <img src="{{ recipe.image_url }}" alt=" {{ recipe.title }} ">
+                      <img src="{{ recipe.image_url }}" alt="{{ recipe.title }}">
                     </div>
                     <div class="down-content">
                       <span>{{ recipe.title }}</span>
@@ -127,7 +174,7 @@ https://templatemo.com/tm-551-stand-blog
                         {% for ingredient in recipe.ingredients %}
                           <li>{{ ingredient }}</li>
                         {% endfor %}
-                      </ul>>
+                      </ul>
                       <div class="post-options">
                         <div class="row">
                           <div class="col-6">
@@ -149,7 +196,29 @@ https://templatemo.com/tm-551-stand-blog
                     </div>
                   </div>
                 </div>
-                {% endfor %}
+              {% empty %}
+                <p>No recipes found.</p>
+              {% endfor %}
+
+              {% if page_obj.has_other_pages %}
+                <div class="pagination">
+                  <span class="page-links">
+                    {% if page_obj.has_previous %}
+                      <a href="?page=1">&laquo; First</a>
+                      <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+
+                    <span class="current-page">
+                      Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+
+                    {% if page_obj.has_next %}
+                      <a href="?page={{ page_obj.next_page_number }}">next</a>
+                      <a href="?page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                    {% endif %}
+                  </span>
+                </div>
+              {% endif %}
               </div>
             </div>
           </div>
